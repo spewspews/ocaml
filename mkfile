@@ -1,7 +1,7 @@
 <config/mkfile
 BIN=/$objtype/bin
 OCAMLRUN=boot/ocamlrun
-OCAMLC=$OCAMLRUN boot/ocamlc -g -nostdlib -I boot -use-prims byterun/primitives
+OCAMLC=$OCAMLRUN boot/ocamlc -g -nostdlib -I boot -use-prims runtime/primitives
 OCAMLYACC=boot/ocamlyacc
 OCAMLLEX=$OCAMLRUN boot/ocamllex
 LIBDIR=/sys/lib/ocaml
@@ -17,22 +17,22 @@ OCAMLFLAGS=\
 	-bin-annot -safe-string -strict-formats $INCLUDES -c
 YACCFLAGS=-v --strict
 
-all:V: ocamlc $STDLIB byterun/$O.out yacc/$O.out tools/ocamldep tools/ocamlmklib
+all:V: ocamlc $STDLIB runtime/$O.out yacc/$O.out tools/ocamldep tools/ocamlmklib
 
 install:V: ocamlc.install stdlib.install ocamlrun.install ocamlyacc.install ocamllex.install ocamldep.install ocamlmklib.install libunix.install ocaml.install libstr.install libthreads.install
 
 boot:V: $OCAMLRUN $STDLIB $OCAMLYACC tools
 
 $OCAMLRUN: otherlibs/unix/libunix.a otherlibs/str/libstr.a otherlibs/threads/libthreads.a
-	cd byterun
+	cd runtime
 	objtype=$cputype mk install
 
-byterun/$O.out: $OCAMLRUN
-	cd byterun
+runtime/$O.out: $OCAMLRUN
+	cd runtime
 	mk
 
-ocamlrun.install:V: byterun/$O.out
-	cp byterun/$O.out $BIN/ocamlrun
+ocamlrun.install:V: runtime/$O.out
+	cp runtime/$O.out $BIN/ocamlrun
 
 $STDLIB: $OCAMLRUN
 	cd stdlib
@@ -211,17 +211,17 @@ ocaml: $TOPLEVEL $OCAMLRUN compilerlibs/ocamlbytecomp.cma
 ocaml.install: ocaml
 	cp ocaml /rc/bin/ocaml
 
-bytecomp/opcodes.ml: byterun/caml/instruct.h boot
-	$OCAMLRUN tools/make_opcodes -opcodes <byterun/caml/instruct.h >bytecomp/opcodes.ml
+bytecomp/opcodes.ml: runtime/caml/instruct.h boot
+	$OCAMLRUN tools/make_opcodes -opcodes <runtime/caml/instruct.h >bytecomp/opcodes.ml
 
 bytecomp/runtimedef.ml: boot
 	>bytecomp/runtimedef.ml{
 		echo 'let builtin_exceptions = [|'
-		cat byterun/caml/fail.h | tr -d '' |
+		cat runtime/caml/fail.h | tr -d '' |
 		sed -n -e 's|.*/\* ("[A-Za-z_]*") \*/$|  \1;|p';
 		echo '|]'
 		echo 'let builtin_primitives = [|'
-		sed -e 's/.*/  "&";/' byterun/primitives
+		sed -e 's/.*/  "&";/' runtime/primitives
 		echo '|]'
 	}
 
