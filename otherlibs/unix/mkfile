@@ -12,7 +12,7 @@ CFLAGS=\
 	-Bc
 LIBNAME=unix
 LIB=lib$LIBNAME.a
-SYSOFILES=libc/getprotobynumber.$O libc/getitimer.$O
+SYSOFILES=9libc/getprotobynumber.$O 9libc/getitimer.$O
 OFILES=\
 	accept.$O access.$O addrofstr.$O alarm.$O bind.$O chdir.$O chmod.$O\
 	chown.$O chroot.$O close.$O closedir.$O connect.$O cst2constr.$O cstringv.$O\
@@ -38,5 +38,5 @@ CMOFILES=unix.cmo
 <../mkfile
 
 $SYSOFILES:
-	cd libc
+	cd 9libc
 	mk
